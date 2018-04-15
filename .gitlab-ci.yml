@@ -1,4 +1,4 @@
-image: rustlang/rust
+image: rustdocker/rust:nightly
 
 pages:
   stage: deploy
