@@ -1,0 +1,50 @@
+body {
+    font-size: 1.2rem;
+    line-height: 1.8rem;
+    font-family: 'Courier New', Courier, monospace;
+    margin-left: 0.4rem;
+    margin-right: 0.4rem;
+    margin-top: 0rem;
+    color: white;
+    background-color: black;
+}
+
+section, ul {
+    margin: 0;
+}
+
+input {
+    border: none;
+    font-size: 100%;
+    font-family: inherit;
+    color: inherit;
+    background-color: inherit;
+    margin: 0;
+    margin-left: 0.2rem;
+    width: calc(100% - 4em);
+}
+
+#entries {
+    list-style: none;
+    margin-left: 0;
+    padding-left: 4rem;
+    text-indent: -4rem;
+}
+
+.error {
+    color: red;
+}
+
+.info {
+    color: lightseagreen;
+}
+
+.input:before {
+    content: "calc_rs > ";
+    color: gray;
+}
+
+p {
+    margin: 0;
+    padding: 0;
+}

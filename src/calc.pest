@@ -1,0 +1,59 @@
+// Definition of a program
+statement = _{ soi ~ ( func | assn | expr) ~ eoi }
+
+// Assignment.
+assn = !{ symbol ~ "=" ~ expr }
+
+func = _{ help | about }
+help = { "help()" }
+about = { "about()" }
+
+// ------ EXPRESSIONS ------
+// All of the rules that are expressions.
+
+// Application.
+expr = !{ ("(" ~ expr ~ ")" | evaluable) ~ (op ~ expr)* }
+
+// Anything that can evaluate to a variable.
+evaluable = _{ symbol | float | int | rational }
+
+
+// ------ VALUES ------
+// Constants or variables.
+
+symbol = @{ (!("." | whitespace | digit | "(" | ")" | "=" ) ~ any)+ }
+
+// An integer, positive or negative, with an optional order of magnitude.
+int = @{ ("+" | "-")? ~ digit+ ~ exp? }
+
+// A floating point number (real number) with an optional order of magnitude.
+float = @{ ("+" | "-")? ~ digit* ~ "." ~ digit+ ~ exp? }
+
+// A rational number, consisting of one integer divided by another.
+rational = @{ ("+" | "-")? ~ digit+ ~ "/" ~ digit+ }
+
+
+// ------ OPERATORS ------
+// Any operator that can be applied to stuff.
+
+op = _{ pow | mul | add | div | sub }
+
+pow = @{ "^" }
+mul = @{ "*" }
+add = @{ "+" }
+div = @{ "/" }
+sub = @{ "-" }
+
+
+// ------ UTILS ------
+// Basic definitions to simplify other rules.
+
+// A definition of whitespace in the program. Can be a space, a tab, a return,
+// or a linebreak.
+whitespace = _{ " " | "\t" | "\r" | "\n" }
+
+// A digit between 0 and 9.
+digit = _{ '0'..'9' }
+
+// The order of magnitude of a numerical constant.
+exp = _{ ("E" | "e") ~ ("+" | "-")? ~ digit+ }
