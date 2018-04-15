@@ -13,6 +13,6 @@ pages:
     - cargo web deploy --target=wasm32-unknown-unknown
   artifacts:
     paths:
-      - public
+      - target/deploy
   only:
     - master
