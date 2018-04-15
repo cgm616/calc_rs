@@ -7,7 +7,7 @@ cache:
 pages:
   stage: deploy
   script:
-    - rustup add target wasm32-unknown-unknown
+    - rustup target add wasm32-unknown-unknown
     - cargo install cargo-web
     - cargo build
     - cargo web deploy --target=wasm32-unknown-unknown
