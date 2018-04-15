@@ -3,12 +3,13 @@ image: rustdocker/rust:nightly
 cache:
   paths:
     - target/
+    - ~/.cargo
 
 pages:
   stage: deploy
   script:
     - rustup target add wasm32-unknown-unknown
-    - cargo install cargo-web
+    - ./ci-install.sh
     - cargo web deploy --target=wasm32-unknown-unknown
     - mkdir public
     - mv target/deploy public
