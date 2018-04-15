@@ -322,6 +322,10 @@ fn eval(state: &StateRef, input: &str) -> Object {
         Err(error) => return Object::Error("parsing error".to_string()),
     };
 
+    // TODO: implement rational and power of ten exponents, maybe even bignums,
+    // fix negative numbers, testing, order of ops working, responsive design,
+    // make help messages work better, comment code, add readme, separate parse
+    // into a library, add desktop gui, etc.
     fn consume(state: &StateRef, pair: Pair<Rule>) -> Object {
         match pair.as_rule() {
             Rule::assn => {
@@ -357,29 +361,33 @@ fn eval(state: &StateRef, input: &str) -> Object {
             },
             Rule::int => pair.as_str().parse::<i128>().unwrap().into(),
             Rule::float => pair.as_str().parse::<f64>().unwrap().into(),
+            Rule::rational => unimplemented!(),
+            // For help messages, I want them to be 80 chars across at maximum
+            // on bigger displays, but still resize to be good on smaller ones.
             Rule::help => Object::Info(
                 "Use any of the following operations:\n
                     + for addition\n
                     - for subtraction\n
                     * for multiplication\n
                     / for division\n
-                    ^ for exponentation\n------\n
+                    ^ for exponentation\n
+                ------\n
                 Be careful with order of operations. It doesn't quite work yet, so use parentheses when in doubt. Also, negative numbers not supported! (yet)"
                     .to_string(),
             ),
             Rule::about => Object::Info(
-                "This is a REPL calculator running on the web. It was made with
-                the Rust programming language [1] and stdweb [2], a library for
-                constructing client side web apps in Rust. It was compiled to
+                "This is a REPL calculator running on the web. It was made with \
+                the Rust programming language [1] and stdweb [2], a library for \
+                constructing client side web apps in Rust. It was compiled to \
                 WebAssembly [3] and then included in an html file.\n
                 ------\n
                 To see the source code, check it out on github [4].\n
                 ------\n
                 Try running `help()` for some basic help.\n
                 ------\n
-                [1]: https://www.rust-lang.org
-                [2]: https://github.com/koute/stdweb
-                [3]: https://developer.mozilla.org/en-US/docs/WebAssembly
+                [1]: https://www.rust-lang.org\n
+                [2]: https://github.com/koute/stdweb\n
+                [3]: https://developer.mozilla.org/en-US/docs/WebAssembly\n
                 [4]: https://github/cgm616/calc_rs"
                     .to_string(),
             ),
@@ -401,14 +409,22 @@ fn show(state: &StateRef, output: Object) {
     let lines = output.lines();
 
     let entries: HtmlElement = document()
-        .query_selector("#entries")
+        .query_selector("#console")
         .unwrap()
         .unwrap()
         .try_into()
         .unwrap();
 
-    let li: HtmlElement = document().create_element("li").unwrap().try_into().unwrap();
-    li.class_list().add("entry").unwrap();
+    console!(log, "about to make div");
+
+    let div: HtmlElement = document()
+        .create_element("div")
+        .unwrap()
+        .try_into()
+        .unwrap();
+    console!(log, "made div");
+    div.class_list().add("entry").unwrap();
+    console!(log, "added class");
 
     for line in lines {
         let text: HtmlElement = document().create_element("p").unwrap().try_into().unwrap();
@@ -419,10 +435,10 @@ fn show(state: &StateRef, output: Object) {
             text.class_list().add("info").unwrap();
         }
 
-        li.append_child(&text);
+        div.append_child(&text);
     }
 
-    entries.append_child(&li);
+    entries.append_child(&div);
 }
 
 fn new_prompt(state: &StateRef, error: bool) {
@@ -441,9 +457,13 @@ fn new_prompt(state: &StateRef, error: bool) {
         past.class_list().remove("error").unwrap();
     }
 
-    let li: HtmlElement = document().create_element("li").unwrap().try_into().unwrap();
-    li.class_list().add("entry").unwrap();
-    li.class_list().add("input").unwrap();
+    let div: HtmlElement = document()
+        .create_element("div")
+        .unwrap()
+        .try_into()
+        .unwrap();
+    div.class_list().add("entry").unwrap();
+    div.class_list().add("input").unwrap();
 
     let input: InputElement = document()
         .create_element("input")
@@ -454,10 +474,10 @@ fn new_prompt(state: &StateRef, error: bool) {
 
     add_input_events(&state, &input);
 
-    let list = document().query_selector("#entries").unwrap().unwrap();
+    let list = document().query_selector("#console").unwrap().unwrap();
 
-    li.append_child(&input);
-    list.append_child(&li);
+    div.append_child(&input);
+    list.append_child(&div);
 
     input.focus();
 }

@@ -1,7 +1,7 @@
 body {
     font-size: 1.2rem;
     line-height: 1.8rem;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Andale Mono', Consolas, 'Courier New', monospace;
     margin-left: 0.4rem;
     margin-right: 0.4rem;
     margin-top: 0rem;
@@ -21,14 +21,13 @@ input {
     background-color: inherit;
     margin: 0;
     margin-left: 0.2rem;
-    width: calc(100% - 4em);
+    width: calc(100% - 8em);
 }
 
-#entries {
+#console {
     list-style: none;
     margin-left: 0;
-    padding-left: 4rem;
-    text-indent: -4rem;
+    word-wrap: break-word;
 }
 
 .error {
@@ -37,6 +36,7 @@ input {
 
 .info {
     color: lightseagreen;
+    max-width: 40em;
 }
 
 .input:before {
