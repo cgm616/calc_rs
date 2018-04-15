@@ -1,5 +1,9 @@
 image: rustdocker/rust:nightly
 
+cache:
+  paths:
+    - target/
+
 pages:
   stage: deploy
   script:
