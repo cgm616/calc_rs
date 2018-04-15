@@ -1,0 +1,13 @@
+image: rustlang/rust
+
+pages:
+  stage: deploy
+  script:
+    - cargo install cargo-web
+    - cargo build
+    - cargo web deploy --target=wasm32-unknown-unknown
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
