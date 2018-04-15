@@ -11,6 +11,7 @@ pages:
     - ./ci-install.sh
     - cargo web deploy --target=wasm32-unknown-unknown
     - mkdir public
+    - ls -la target/deploy
     - mv target/deploy public
   artifacts:
     paths:
