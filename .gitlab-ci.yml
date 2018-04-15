@@ -3,6 +3,7 @@ image: rustdocker/rust:nightly
 cache:
   paths:
     - target/
+    - ~/.cargo
 
 pages:
   stage: deploy
