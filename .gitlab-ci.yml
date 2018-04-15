@@ -14,6 +14,6 @@ pages:
     - mv target/deploy public
   artifacts:
     paths:
-      - target/deploy
+      - public
   only:
     - master
