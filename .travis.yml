@@ -18,6 +18,7 @@ after_success:
   - |
       if [[ "$TRAVIS_OS_NAME" == "linux" && "$TRAVIS_PULL_REQUEST" = "false" && "$TRAVIS_BRANCH" == "master" ]]; then
         git clone http://github.com/davisp/ghp-import &&
+        echo "calc.cgm616.me" > target/deploy/CNAME
         ./ghp-import/ghp_import.py -n -p -f -m "Site upload" -r https://"$GH_TOKEN"@github.com/"$TRAVIS_REPO_SLUG.git" target/deploy &&
         echo "Uploaded site to ghpages"
       fi
