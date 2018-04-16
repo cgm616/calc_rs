@@ -91,9 +91,11 @@ mod test {
             input: "50E2 - 0.3345E6",
             rule: Rule::expr,
             tokens: [
-                int(0, 4),
-                sub(5, 6),
-                float(7, 15),
+                expr(0, 15, [
+                    int(0, 4),
+                    sub(5, 6),
+                    float(7, 15),
+                ])
             ]
         };
     }
@@ -105,10 +107,10 @@ mod test {
             input: "(1 + 4)",
             rule: Rule::expr,
             tokens: [
-                paren(0, 7, [
+                expr(0, 7, [
                     int(1, 2),
                     add(3, 4),
-                    int(5, 6)
+                    int(5, 6),
                 ])
             ]
         };

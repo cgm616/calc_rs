@@ -9,25 +9,42 @@ body {
     background-color: black;
 }
 
-section, ul {
+section {
     margin: 0;
-}
-
-input {
-    border: none;
-    font-size: 100%;
-    font-family: inherit;
-    color: inherit;
-    background-color: inherit;
-    margin: 0;
-    margin-left: 0.2rem;
-    width: calc(100% - 8em);
 }
 
 #console {
     list-style: none;
     margin-left: 0;
     word-wrap: break-word;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+}
+
+.line {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%
+}
+
+p {
+    margin: 0;
+}
+
+.input {
+    flex-grow: 1;
+    min-width: 4em;
+    max-width: 100%;
+}
+
+.prompt {
+    color: lightgrey;
+    flex-grow: 0;
 }
 
 .error {
@@ -39,12 +56,22 @@ input {
     max-width: 40em;
 }
 
-.input:before {
-    content: "calc_rs > ";
-    color: gray;
+[contenteditable]:focus {
+    outline: 0px solid transparent;
 }
 
-p {
+pre {
     margin: 0;
-    padding: 0;
+    color: inherit;
+    font-size: inherit;
+    font-family: inherit;
+}
+
+a {
+    color: inherit;
+}
+
+a:hover {
+    background-color: white;
+    color: black;
 }
