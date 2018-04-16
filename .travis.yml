@@ -10,7 +10,9 @@ rust:
 
 script:
   - rustup target add wasm32-unknown-unknown
+  - cargo install cargo-update
   - cargo install-update cargo-web
+  - cargo install-update cargo-update
   - cargo web build --target=wasm32-unknown-unknown
   - cargo web deploy --target=wasm32-unknown-unknown
 
