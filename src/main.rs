@@ -243,6 +243,24 @@ impl Object {
             Object::Nil => None,
         }
     }
+
+    fn set_ans(&self, state: &StateRef) {
+        match self {
+            &Object::Integer(int) => {
+                state
+                    .borrow_mut()
+                    .assignments
+                    .insert("ans".to_string(), int.into());
+            }
+            &Object::Float(float) => {
+                state
+                    .borrow_mut()
+                    .assignments
+                    .insert("ans".to_string(), float.into());
+            }
+            _ => {}
+        };
+    }
 }
 
 impl From<i128> for Object {
@@ -362,6 +380,7 @@ fn add_input_events(state: &StateRef, element: &HtmlElement) {
             if !entry.is_whitespace() {
                 state.borrow_mut().add_entry(&entry);
                 let result = eval(&state, &entry);
+                result.set_ans(&state);
                 show(&state, result);
                 new_prompt(&state);
             } else {
