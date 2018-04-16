@@ -218,11 +218,41 @@ impl Object {
                     .try_into()
                     .unwrap();
                 let display1 = new_text_node!("Use any of the following operations:");
+                display1.append_child::<HtmlElement>(&document()
+                    .create_element("br")
+                    .unwrap()
+                    .try_into()
+                    .unwrap());
                 display1.append_child(&document().create_text_node("+ for addition"));
+                display1.append_child::<HtmlElement>(&document()
+                    .create_element("br")
+                    .unwrap()
+                    .try_into()
+                    .unwrap());
                 display1.append_child(&document().create_text_node("- for subtraction"));
+                display1.append_child::<HtmlElement>(&document()
+                    .create_element("br")
+                    .unwrap()
+                    .try_into()
+                    .unwrap());
                 display1.append_child(&document().create_text_node("* for multiplication"));
+                display1.append_child::<HtmlElement>(&document()
+                    .create_element("br")
+                    .unwrap()
+                    .try_into()
+                    .unwrap());
                 display1.append_child(&document().create_text_node("/ for division"));
+                display1.append_child::<HtmlElement>(&document()
+                    .create_element("br")
+                    .unwrap()
+                    .try_into()
+                    .unwrap());
                 display1.append_child(&document().create_text_node("^ for exponentation"));
+                display1.append_child::<HtmlElement>(&document()
+                    .create_element("br")
+                    .unwrap()
+                    .try_into()
+                    .unwrap());
                 display1
                     .append_child(&document().create_text_node("= for assignment of variables (ex: `a = b`)"));
                 let line_break1: HtmlElement =
