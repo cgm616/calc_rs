@@ -49,12 +49,18 @@ macro_rules! enclose {
     };
 }
 
+#[derive(Clone, Copy, Debug)]
+enum InfoType {
+    About,
+    Help,
+}
+
 #[derive(Clone, Debug)]
 enum Object {
     Integer(i128),
     Float(f64),
     Error(String),
-    Info(String),
+    Info(InfoType),
     Nil,
 }
 
@@ -141,6 +147,102 @@ impl Object {
             _ => Object::Error("that operation isn't supported".to_string()),
         }
     }
+
+    fn display(self) -> Option<HtmlElement> {
+        // A macro to create `p` elements.
+        macro_rules! new_text_node {
+            ($text:expr) => {{
+                let display: HtmlElement = document().create_element("p").unwrap().try_into().unwrap();
+                display.append_child(&document().create_text_node($text));
+                display
+            }};
+        }
+
+        // A macro to create links with specified text and location.
+        macro_rules! new_link_node {
+            ($href:expr, $text:expr) => {{
+                let link: HtmlElement = document().create_element("a").unwrap().try_into().unwrap();
+                link.append_child(&document().create_text_node($text));
+                link.set_attribute("href", $href);
+                link
+            }};
+        }
+
+        match self {
+            Object::Integer(int) => Some(new_text_node!(&int.to_string())),
+            Object::Float(float) => Some(new_text_node!(&format!("{:.16}", float))),
+            Object::Error(string) => {
+                let display = new_text_node!(&string);
+                display.class_list().add("error").unwrap();
+                Some(display)
+            }
+            Object::Info(InfoType::About) => {
+                let container: HtmlElement = document()
+                    .create_element("div")
+                    .unwrap()
+                    .try_into()
+                    .unwrap();
+                let display1 = new_text_node!(
+                    "This is a REPL calculator running on the web. It was made with the "
+                );
+                display1.append_child(&new_link_node!(
+                    "https://www.rust-lang.org",
+                    "Rust programming language"
+                ));
+                display1.append_child(&document().create_text_node(" and "));
+                display1.append_child(&new_link_node!("https://github.com/koute/stdweb", "stdweb"));
+                display1.append_child(&document().create_text_node(", a library for constructing client side web apps in Rust. It was compiled to "));
+                display1.append_child(&new_link_node!(
+                    "https://developer.mozilla.org/en-US/docs/WebAssembly",
+                    "WebAssembly"
+                ));
+                display1.append_child(&document().create_text_node(" and then included in an html file to run on the web. To see the source code, check it out on "));
+                display1.append_child(&new_link_node!(
+                    "https://github.com/cgm616/calc_rs",
+                    "Github."
+                ));
+                let line_break: HtmlElement =
+                    document().create_element("br").unwrap().try_into().unwrap();
+                let display2 = new_text_node!("Try running `help()` for more info.");
+
+                container.append_child(&display1);
+                container.append_child(&line_break);
+                container.append_child(&display2);
+                container.class_list().add("info").unwrap();
+                Some(container)
+            }
+            Object::Info(InfoType::Help) => {
+                let container: HtmlElement = document()
+                    .create_element("div")
+                    .unwrap()
+                    .try_into()
+                    .unwrap();
+                let display1 = new_text_node!("Use any of the following operations:");
+                display1.append_child(&document().create_text_node("+ for addition"));
+                display1.append_child(&document().create_text_node("- for subtraction"));
+                display1.append_child(&document().create_text_node("* for multiplication"));
+                display1.append_child(&document().create_text_node("/ for division"));
+                display1.append_child(&document().create_text_node("^ for exponentation"));
+                display1
+                    .append_child(&document().create_text_node("= for assignment of variables (ex: `a = b`)"));
+                let line_break1: HtmlElement =
+                    document().create_element("br").unwrap().try_into().unwrap();
+                let display2 = new_text_node!("Try using a few well known constants, like `pi` and `e`. `ans` is a special variable that is always the last result.");
+                let line_break2: HtmlElement =
+                    document().create_element("br").unwrap().try_into().unwrap();
+                let display3 = new_text_node!("Be careful with order of operations. It doesn't quite work yet, so use parentheses when in doubt. Also, negative numbers are not supported! (yet)");
+
+                container.append_child(&display1);
+                container.append_child(&line_break1);
+                container.append_child(&display2);
+                container.append_child(&line_break2);
+                container.append_child(&display3);
+                container.class_list().add("info").unwrap();
+                Some(container)
+            }
+            Object::Nil => None,
+        }
+    }
 }
 
 impl From<i128> for Object {
@@ -152,18 +254,6 @@ impl From<i128> for Object {
 impl From<f64> for Object {
     fn from(num: f64) -> Object {
         Object::Float(num)
-    }
-}
-
-impl std::fmt::Display for Object {
-    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match self {
-            &Object::Integer(num) => num.fmt(fmt),
-            &Object::Float(num) => num.fmt(fmt),
-            &Object::Error(ref string) => string.fmt(fmt),
-            &Object::Info(ref string) => string.fmt(fmt),
-            _ => unreachable!(),
-        }
     }
 }
 
@@ -196,10 +286,6 @@ impl State {
         if (len > 0 && self.history[len - 1] != entry) || len == 0 {
             self.history.push(entry.to_string());
         }
-    }
-
-    fn counter_exists(&self) -> bool {
-        self.counter.is_some()
     }
 
     fn next_history(&mut self) -> Option<&str> {
@@ -250,59 +336,56 @@ impl State {
 fn main() {
     let state = Rc::new(RefCell::new(State::new()));
 
-    let latest: InputElement = document()
+    let first_line: HtmlElement = document()
         .query_selector("#latest")
         .unwrap()
         .unwrap()
         .try_into()
         .unwrap();
 
-    latest.set_raw_value("about()");
+    let first_prompt: HtmlElement = first_line.last_child().unwrap().try_into().unwrap();
+
+    first_prompt.set_text_content("about()");
 
     let result = eval(&state, "about()");
     show(&state, result);
-    new_prompt(&state, false);
+    new_prompt(&state);
 }
 
-fn add_input_events(state: &StateRef, element: &InputElement) {
+fn add_input_events(state: &StateRef, element: &HtmlElement) {
     element.add_event_listener(enclose!( (element, state) move |event: KeyPressEvent| {
         if event.key() == "Enter" {
             event.prevent_default();
 
-            let entry: String = element.raw_value();
+            let entry: String = element.inner_text();
 
             if !entry.is_whitespace() {
                 state.borrow_mut().add_entry(&entry);
                 let result = eval(&state, &entry);
-                if result.is_nil() {
-                    new_prompt(&state, false);
-                } else {
-                    let err = result.is_error();
-                    show(&state, result);
-                    new_prompt(&state, err);
-                }
+                show(&state, result);
+                new_prompt(&state);
             } else {
-                new_prompt(&state, false);
+                new_prompt(&state);
             }
         } else if event.key() == "ArrowUp" {
             event.prevent_default();
 
             match state.borrow_mut().next_history() {
-                Some(string) => element.set_raw_value(string),
+                Some(string) => element.set_text_content(string),
                 None => {}
             }
         } else if event.key() == "ArrowDown" {
             event.prevent_default();
 
             match state.borrow_mut().previous_history() {
-                Some(string) => element.set_raw_value(string),
-                None => {}
+                Some(string) => element.set_text_content(string),
+                None => element.set_text_content("")
             }
         }
     }));
 
     element.add_event_listener(enclose!( (element, state) move |event: InputEvent| {
-        let incomplete: String = element.raw_value();
+        let incomplete: String = element.inner_text();
             if !incomplete.is_whitespace() {
                 let result = eval(&state, &incomplete);
                 if result.is_error() {
@@ -362,35 +445,8 @@ fn eval(state: &StateRef, input: &str) -> Object {
             Rule::int => pair.as_str().parse::<i128>().unwrap().into(),
             Rule::float => pair.as_str().parse::<f64>().unwrap().into(),
             Rule::rational => unimplemented!(),
-            // For help messages, I want them to be 80 chars across at maximum
-            // on bigger displays, but still resize to be good on smaller ones.
-            Rule::help => Object::Info(
-                "Use any of the following operations:\n
-                    + for addition\n
-                    - for subtraction\n
-                    * for multiplication\n
-                    / for division\n
-                    ^ for exponentation\n
-                ------\n
-                Be careful with order of operations. It doesn't quite work yet, so use parentheses when in doubt. Also, negative numbers not supported! (yet)"
-                    .to_string(),
-            ),
-            Rule::about => Object::Info(
-                "This is a REPL calculator running on the web. It was made with \
-                the Rust programming language [1] and stdweb [2], a library for \
-                constructing client side web apps in Rust. It was compiled to \
-                WebAssembly [3] and then included in an html file.\n
-                ------\n
-                To see the source code, check it out on github [4].\n
-                ------\n
-                Try running `help()` for some basic help.\n
-                ------\n
-                [1]: https://www.rust-lang.org\n
-                [2]: https://github.com/koute/stdweb\n
-                [3]: https://developer.mozilla.org/en-US/docs/WebAssembly\n
-                [4]: https://github/cgm616/calc_rs"
-                    .to_string(),
-            ),
+            Rule::help => Object::Info(InfoType::Help),
+            Rule::about => Object::Info(InfoType::About),
             _ => unreachable!(),
         }
     }
@@ -402,82 +458,91 @@ fn eval(state: &StateRef, input: &str) -> Object {
 }
 
 fn show(state: &StateRef, output: Object) {
-    let error = output.is_error();
-    let info = output.is_info();
-    let output = format!("{}", output);
+    // Ask the output to construct a DOM to display itself, and then see if it
+    // gives one.
+    match output.display() {
+        Some(html) => {
+            // If it does, find the console then add the DOM.
+            let console: HtmlElement = document()
+                .query_selector("#console")
+                .unwrap()
+                .unwrap()
+                .try_into()
+                .unwrap();
 
-    let lines = output.lines();
+            // Construct the new line container and add the right class.
+            let new_line: HtmlElement = document()
+                .create_element("div")
+                .unwrap()
+                .try_into()
+                .unwrap();
+            new_line.class_list().add("line");
 
-    let entries: HtmlElement = document()
-        .query_selector("#console")
-        .unwrap()
-        .unwrap()
-        .try_into()
-        .unwrap();
-
-    console!(log, "about to make div");
-
-    let div: HtmlElement = document()
-        .create_element("div")
-        .unwrap()
-        .try_into()
-        .unwrap();
-    console!(log, "made div");
-    div.class_list().add("entry").unwrap();
-    console!(log, "added class");
-
-    for line in lines {
-        let text: HtmlElement = document().create_element("p").unwrap().try_into().unwrap();
-        text.append_child(&document().create_text_node(line));
-        if error {
-            text.class_list().add("error").unwrap();
-        } else if info {
-            text.class_list().add("info").unwrap();
+            // Add the html from the Object to the new line and add the line to
+            // the console.
+            new_line.append_child(&html);
+            console.append_child(&new_line);
         }
-
-        div.append_child(&text);
+        None => {} // If it doesn't, do nothing.
     }
-
-    entries.append_child(&div);
 }
 
-fn new_prompt(state: &StateRef, error: bool) {
+fn new_prompt(state: &StateRef) {
+    // Since this is a new prompt, reset the history counter.
     state.borrow_mut().reset_counter();
 
-    let past: InputElement = document()
+    // Find the element that is the previous prompt. Remove the special id for
+    // the latest prompt.
+    let previous_line: HtmlElement = document()
         .query_selector("#latest")
         .unwrap()
         .unwrap()
         .try_into()
         .unwrap();
+    previous_line.remove_attribute("id");
 
-    past.set_attribute("disabled", "true").unwrap();
-    past.remove_attribute("id");
-    if past.class_list().contains("error") && !error {
-        past.class_list().remove("error").unwrap();
-    }
+    // The second child of the previous prompt should be the input box. Make it
+    // uneditable.
+    let previous_input: HtmlElement = previous_line.last_child().unwrap().try_into().unwrap();
+    previous_input
+        .set_attribute("contenteditable", "false")
+        .unwrap();
 
-    let div: HtmlElement = document()
+    // Construct a new prompt div and give it the special id.
+    let new_line: HtmlElement = document()
         .create_element("div")
         .unwrap()
         .try_into()
         .unwrap();
-    div.class_list().add("entry").unwrap();
-    div.class_list().add("input").unwrap();
+    new_line.set_attribute("id", "latest").unwrap();
+    new_line.class_list().add("line").unwrap();
 
-    let input: InputElement = document()
-        .create_element("input")
+    // Construct the actual prompt text that comes before the input. This is a
+    // pre element with a text node.
+    let new_prompt: HtmlElement = document()
+        .create_element("pre")
         .unwrap()
         .try_into()
         .unwrap();
-    input.set_attribute("id", "latest").unwrap();
+    new_prompt.class_list().add("prompt").unwrap();
+    new_prompt.append_child(&document().create_text_node("calc_rs > "));
 
-    add_input_events(&state, &input);
+    // Construct the contenteditable p element that works as an input.
+    let new_input: HtmlElement = document().create_element("p").unwrap().try_into().unwrap();
+    new_input.set_attribute("contenteditable", "true").unwrap();
+    new_input.class_list().add("input").unwrap();
 
-    let list = document().query_selector("#console").unwrap().unwrap();
+    // Add the callbacks on the events to the new input.
+    add_input_events(state, &new_input);
 
-    div.append_child(&input);
-    list.append_child(&div);
+    // Add the prompt text and the input to the line container.
+    new_line.append_child(&new_prompt);
+    new_line.append_child(&new_input);
 
-    input.focus();
+    // Find the list of lines and add the new line to the list.
+    let console = document().query_selector("#console").unwrap().unwrap();
+    console.append_child(&new_line);
+
+    // Focus on the new input.
+    new_input.focus();
 }
