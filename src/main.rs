@@ -170,7 +170,7 @@ impl Object {
 
         match self {
             Object::Integer(int) => Some(new_text_node!(&int.to_string())),
-            Object::Float(float) => Some(new_text_node!(&format!("{:.16}", float))),
+            Object::Float(float) => Some(new_text_node!(&float.to_string())),
             Object::Error(string) => {
                 let display = new_text_node!(&string);
                 display.class_list().add("error").unwrap();
