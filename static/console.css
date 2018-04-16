@@ -38,8 +38,9 @@ p {
 
 .input {
     flex-grow: 1;
-    min-width: 4em;
+    min-width: 4rem;
     max-width: 100%;
+    min-height: 1.8rem;
 }
 
 .prompt {
@@ -53,7 +54,7 @@ p {
 
 .info {
     color: lightseagreen;
-    max-width: 40em;
+    max-width: 40rem;
 }
 
 [contenteditable]:focus {
