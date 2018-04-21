@@ -1,6 +1,3 @@
-use pest::iterators::Pair;
-use pest::Parser;
-
 #[cfg(debug_assertions)]
 const _GRAMMAR: &'static str = include_str!("calc.pest");
 

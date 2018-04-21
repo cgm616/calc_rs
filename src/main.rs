@@ -19,13 +19,10 @@ use stdweb::{traits::*,
              unstable::TryInto,
              web::{document,
                    event::{InputEvent, KeyPressEvent},
-                   html_element::InputElement,
                    HtmlElement}};
 
 use pest::{iterators::Pair,
-           iterators::Pairs,
            prec_climber::{Assoc, Operator, PrecClimber},
-           Error as PestError,
            Parser};
 
 mod parse;
@@ -156,7 +153,7 @@ impl Object {
             ($href:expr, $text:expr) => {{
                 let link: HtmlElement = document().create_element("a").unwrap().try_into().unwrap();
                 link.append_child(&document().create_text_node($text));
-                link.set_attribute("href", $href);
+                link.set_attribute("href", $href).unwrap();
                 link
             }};
         }
@@ -426,7 +423,7 @@ fn add_input_events(state: &StateRef, element: &HtmlElement) {
         }
     }));
 
-    element.add_event_listener(enclose!( (element, state) move |event: InputEvent| {
+    element.add_event_listener(enclose!( (element, state) move |_event: InputEvent| {
         let incomplete: String = element.inner_text();
             if !incomplete.is_whitespace() {
                 let result = eval(&state, &incomplete);
@@ -443,7 +440,7 @@ fn eval(state: &StateRef, input: &str) -> Object {
 
     let pairs = match CalcParser::parse(Rule::statement, input) {
         Ok(pairs) => pairs,
-        Err(error) => return Object::Error("parsing error".to_string()),
+        Err(_error) => return Object::Error("parsing error".to_string()),
     };
 
     // TODO: implement rational and power of ten exponents, maybe even bignums,
@@ -499,7 +496,7 @@ fn eval(state: &StateRef, input: &str) -> Object {
     }
 }
 
-fn show(state: &StateRef, output: Object) {
+fn show(_state: &StateRef, output: Object) {
     // Ask the output to construct a DOM to display itself, and then see if it
     // gives one.
     match output.display() {
@@ -518,7 +515,7 @@ fn show(state: &StateRef, output: Object) {
                 .unwrap()
                 .try_into()
                 .unwrap();
-            new_line.class_list().add("line");
+            new_line.class_list().add("line").unwrap();
 
             // Add the html from the Object to the new line and add the line to
             // the console.
