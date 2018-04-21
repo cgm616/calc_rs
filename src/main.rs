@@ -35,7 +35,8 @@ lazy_static! {
     static ref PREC_CLIMBER: PrecClimber<Rule> = PrecClimber::new(vec![
         Operator::new(Rule::sub, Assoc::Left) | Operator::new(Rule::add, Assoc::Left),
         Operator::new(Rule::mul, Assoc::Left) | Operator::new(Rule::div, Assoc::Left),
-        Operator::new(Rule::pow, Assoc::Left),
+        Operator::new(Rule::pow, Assoc::Right),
+        Operator::new(Rule::rem, Assoc::Left),
     ]);
 }
 
@@ -116,28 +117,20 @@ impl Div for Object {
     }
 }
 
+impl Rem for Object {
+    type Output = Object;
+    fn rem(self, rhs: Self) -> Self::Output {
+        match (self, rhs) {
+            (Object::Integer(lhs), Object::Integer(rhs)) => Object::Integer(lhs % rhs),
+            (Object::Float(lhs), Object::Float(rhs)) => Object::Float(lhs % rhs),
+            (Object::Integer(lhs), Object::Float(rhs)) => Object::Float(lhs as f64 % rhs as f64),
+            (Object::Float(lhs), Object::Integer(rhs)) => Object::Float(lhs as f64 % rhs as f64),
+            _ => Object::Error("that operation isn't supported".to_string()),
+        }
+    }
+}
+
 impl Object {
-    fn is_error(&self) -> bool {
-        match self {
-            Object::Error(_) => true,
-            _ => false,
-        }
-    }
-
-    fn is_nil(&self) -> bool {
-        match self {
-            Object::Nil => true,
-            _ => false,
-        }
-    }
-
-    fn is_info(&self) -> bool {
-        match self {
-            Object::Info(_) => true,
-            _ => false,
-        }
-    }
-
     fn pow(self, rhs: Self) -> Self {
         match (self, rhs) {
             (Object::Integer(lhs), Object::Integer(rhs)) => Object::Integer(lhs.pow(rhs as u32)),
@@ -437,11 +430,10 @@ fn add_input_events(state: &StateRef, element: &HtmlElement) {
         let incomplete: String = element.inner_text();
             if !incomplete.is_whitespace() {
                 let result = eval(&state, &incomplete);
-                if result.is_error() {
-                    element.class_list().add("error").unwrap();
-                } else if element.class_list().contains("error") {
-                    element.class_list().remove("error").unwrap();
-                }
+                match result {
+                    Object::Error(_text) => element.class_list().add("error").unwrap(),
+                    _ => element.class_list().remove("error").unwrap()
+                };
             }
     }));
 }
@@ -478,10 +470,11 @@ fn eval(state: &StateRef, input: &str) -> Object {
 
                 let infix = |lhs: Object, op: Pair<Rule>, rhs: Object| match op.as_rule() {
                     Rule::pow => lhs.pow(rhs),
-                    Rule::mul => lhs.mul(rhs),
-                    Rule::div => lhs.div(rhs),
                     Rule::add => lhs.add(rhs),
                     Rule::sub => lhs.sub(rhs),
+                    Rule::mul => lhs.mul(rhs),
+                    Rule::div => lhs.div(rhs),
+                    Rule::rem => lhs.rem(rhs),
                     _ => unreachable!(),
                 };
 

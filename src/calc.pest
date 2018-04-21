@@ -36,13 +36,14 @@ rational = @{ ("+" | "-")? ~ digit+ ~ "/" ~ digit+ }
 // ------ OPERATORS ------
 // Any operator that can be applied to stuff.
 
-op = _{ pow | mul | add | div | sub }
+op = _{ pow | mul | add | div | sub | rem }
 
 pow = @{ "^" }
 mul = @{ "*" }
 add = @{ "+" }
 div = @{ "/" }
 sub = @{ "-" }
+rem = @{ "%" }
 
 
 // ------ UTILS ------
