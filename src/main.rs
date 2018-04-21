@@ -357,6 +357,7 @@ impl State {
                         self.counter = Some(num + 1);
                         Some(&self.history[num + 1])
                     } else {
+                        self.counter = None;
                         None
                     }
                 }
