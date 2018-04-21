@@ -21,7 +21,7 @@ evaluable = _{ symbol | float | int | rational }
 // ------ VALUES ------
 // Constants or variables.
 
-symbol = @{ (!("." | whitespace | digit | "(" | ")" | "=" ) ~ any)+ }
+symbol = @{ (!("." | whitespace | digit | op | "(" | ")" | "=" ) ~ any)+ }
 
 // An integer, positive or negative, with an optional order of magnitude.
 int = @{ ("+" | "-")? ~ digit+ ~ exp? }
