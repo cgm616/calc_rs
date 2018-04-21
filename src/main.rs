@@ -309,6 +309,7 @@ impl State {
     fn new() -> Self {
         let mut map = HashMap::new();
         map.insert("pi".to_string(), Object::Float(std::f64::consts::PI));
+        map.insert("π".to_string(), Object::Float(std::f64::consts::PI));
         map.insert("e".to_string(), Object::Float(std::f64::consts::E));
 
         State {
