@@ -1,10 +1,7 @@
+use std::ops::{Add, Div, Mul, Rem, Sub};
 use stdweb::{traits::*,
              unstable::TryInto,
              web::{document, HtmlElement}};
-
-use std::ops::{Add, Div, Mul, Rem, Sub};
-
-use super::StateRef;
 
 #[derive(Clone, Copy, Debug)]
 pub enum InfoType {

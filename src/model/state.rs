@@ -1,7 +1,4 @@
-use std;
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::rc::Rc;
+use std::{self, cell::RefCell, collections::HashMap, rc::Rc};
 
 use super::Object;
 

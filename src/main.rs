@@ -10,20 +10,17 @@ extern crate pest;
 #[macro_use]
 extern crate lazy_static;
 
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::ops::{Add, Div, Mul, Rem, Sub};
-use std::rc::Rc;
-
+use pest::{iterators::Pair,
+           prec_climber::{Assoc, Operator, PrecClimber},
+           Parser};
+use std::{cell::RefCell,
+          ops::{Add, Div, Mul, Rem, Sub},
+          rc::Rc};
 use stdweb::{traits::*,
              unstable::TryInto,
              web::{document,
                    event::{InputEvent, KeyPressEvent},
                    HtmlElement}};
-
-use pest::{iterators::Pair,
-           prec_climber::{Assoc, Operator, PrecClimber},
-           Parser};
 
 mod model;
 use model::{InfoType, Object, State, StateRef};
