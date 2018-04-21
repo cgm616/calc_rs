@@ -12,7 +12,10 @@ about = { "about()" }
 // All of the rules that are expressions.
 
 // Application.
-expr = !{ ("(" ~ expr ~ ")" | evaluable) ~ (op ~ expr)* }
+expr = !{ pore ~ (op ~ pore)* }
+
+// Paren or evaluable
+pore = _{ evaluable| "(" ~ expr ~ ")" }
 
 // Anything that can evaluate to a variable.
 evaluable = _{ symbol | float | int | rational }

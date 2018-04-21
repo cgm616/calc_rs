@@ -206,7 +206,7 @@ impl Object {
                 let display2 = new_text_node!("Try using a few well known constants, like `pi` and `e`. `ans` is a special variable that is always the last result.");
                 let line_break2: HtmlElement =
                     document().create_element("br").unwrap().try_into().unwrap();
-                let display3 = new_text_node!("Be careful with order of operations. It doesn't quite work yet, so use parentheses when in doubt. Also, negative numbers are not supported! (yet)");
+                let display3 = new_text_node!("Negative numbers are not yet supported!");
 
                 container.append_child(&display1);
                 container.append_child(&line_break1);
