@@ -2,7 +2,7 @@ use std::{self, cell::RefCell, collections::HashMap, rc::Rc};
 
 use super::Object;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct State {
     pub history: Vec<String>,
     pub assignments: HashMap<String, Object>,

@@ -3,6 +3,7 @@ extern crate stdweb;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde;
+extern crate serde_json;
 #[macro_use]
 extern crate pest_derive;
 #[macro_use]
@@ -14,12 +15,14 @@ use pest::{iterators::Pair,
            prec_climber::{Assoc, Operator, PrecClimber},
            Parser};
 use std::{cell::RefCell,
+          error::Error,
           ops::{Add, Div, Mul, Rem, Sub},
           rc::Rc};
 use stdweb::{traits::*,
              unstable::TryInto,
              web::{document,
                    event::{InputEvent, KeyPressEvent},
+                   window,
                    HtmlElement}};
 
 mod model;
@@ -47,7 +50,10 @@ macro_rules! enclose {
 }
 
 fn main() {
-    let state = Rc::new(RefCell::new(State::new()));
+    let state = match get_storage() {
+        Some(state) => Rc::new(RefCell::new(state)),
+        None => Rc::new(RefCell::new(State::new())),
+    };
 
     let first_line: HtmlElement = document()
         .query_selector("#latest")
@@ -78,6 +84,7 @@ fn add_input_events(state: &StateRef, element: &HtmlElement) {
                 state.borrow_mut().set_ans(&result);
                 show(&state, result);
                 new_prompt(&state);
+                set_storage(&state);
             } else {
                 new_prompt(&state);
             }
@@ -156,7 +163,7 @@ fn eval(state: &StateRef, input: &str) -> Object {
                 Some(obj) => obj.clone(),
                 None => Object::Error(format!("no variable named {}", pair.as_str())),
             },
-            Rule::int => pair.as_str().parse::<i128>().unwrap().into(),
+            Rule::int => pair.as_str().parse::<i64>().unwrap().into(),
             Rule::float => pair.as_str().parse::<f64>().unwrap().into(),
             Rule::rational => unimplemented!(),
             Rule::help => Object::Info(InfoType::Help),
@@ -259,4 +266,18 @@ fn new_prompt(state: &StateRef) {
 
     // Focus on the new input.
     new_input.focus();
+}
+
+fn set_storage(state: &StateRef) {
+    let storage = window().local_storage();
+    let state = state.clone();
+    let string = serde_json::to_string(&*state.borrow()).unwrap();
+    storage.insert("state", &string).unwrap();
+}
+
+fn get_storage() -> Option<State> {
+    let storage = window().local_storage();
+    storage
+        .get("state")
+        .map(|string| serde_json::from_str(&string).unwrap_or(State::new()))
 }

@@ -3,15 +3,15 @@ use stdweb::{traits::*,
              unstable::TryInto,
              web::{document, HtmlElement}};
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub enum InfoType {
     About,
     Help,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum Object {
-    Integer(i128),
+    Integer(i64),
     Float(f64),
     Error(String),
     Info(InfoType),
@@ -221,8 +221,8 @@ impl Object {
     }
 }
 
-impl From<i128> for Object {
-    fn from(num: i128) -> Object {
+impl From<i64> for Object {
+    fn from(num: i64) -> Object {
         Object::Integer(num)
     }
 }
