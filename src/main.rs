@@ -107,7 +107,7 @@ fn add_input_events(state: &StateRef, element: &HtmlElement) {
 
     element.add_event_listener(enclose!( (element, state) move |_event: InputEvent| {
         let incomplete: String = element.inner_text();
-            if !(*incomplete).chars().all(char::is_whitespace) {
+            if !incomplete.chars().all(char::is_whitespace) {
                 let result = eval(&state, &incomplete);
                 match result {
                     Object::Error(_text) => element.class_list().add("error").unwrap(),
