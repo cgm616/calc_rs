@@ -1,6 +1,6 @@
 # calc_rs
 
-[![Travis](https://img.shields.io/travis/cgm616/calc_rs.svg)](https://travis-ci.org/cgm616/calc_rs)
+[![Travis](https://img.shields.io/travis/cgm616/calc_rs/master.svg)](https://travis-ci.org/cgm616/calc_rs)
 [![Website](https://img.shields.io/website-up-down-green-red/http/calc.cgm616.me.svg?label=demo)](http://calc.cgm616.me)
 [![License](https://img.shields.io/badge/license-mit-blue.svg)](https://github.com/cgm616/calc_rs/blob/master/LICENSE)
 
