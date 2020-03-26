@@ -1,0 +1,78 @@
+body {
+    font-size: 1.2rem;
+    line-height: 1.8rem;
+    font-family: 'Andale Mono', Consolas, 'Courier New', monospace;
+    margin-left: 0.4rem;
+    margin-right: 0.4rem;
+    margin-top: 0rem;
+    color: white;
+    background-color: black;
+}
+
+section {
+    margin: 0;
+}
+
+#console {
+    list-style: none;
+    margin-left: 0;
+    word-wrap: break-word;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+}
+
+.line {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%
+}
+
+p {
+    margin: 0;
+}
+
+.input {
+    flex-grow: 1;
+    min-width: 4rem;
+    max-width: 100%;
+    min-height: 1.8rem;
+}
+
+.prompt {
+    color: lightgrey;
+    flex-grow: 0;
+}
+
+.error {
+    color: red;
+}
+
+.info {
+    color: lightseagreen;
+    max-width: 40rem;
+}
+
+[contenteditable]:focus {
+    outline: 0px solid transparent;
+}
+
+pre {
+    margin: 0;
+    color: inherit;
+    font-size: inherit;
+    font-family: inherit;
+}
+
+a {
+    color: inherit;
+}
+
+a:hover {
+    background-color: white;
+    color: black;
+}
